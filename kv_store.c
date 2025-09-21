@@ -2,12 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include "kv_store.h"
 #include "block_store.h"
 
 void handle_client(int client_fd, int block_fd) {
     char buffer[512] = {0};
-    read(client_fd, buffer, sizeof(buffer));
+    int ret = read(client_fd, buffer, sizeof(buffer));
+    if (ret <= 0) {
+        perror("read failed");
+        exit(1);
+    }
 
     char cmd[10], key[128], value[256];
     sscanf(buffer, "%s %s %s", cmd, key, value);
@@ -21,7 +26,11 @@ void handle_client(int client_fd, int block_fd) {
     } else if (strcmp(cmd, "GET") == 0) {
         int block = get_index_block(key);
         char* val = (block != -1) ? read_value(block) : NULL;
-        write(client_fd, val ? val : "NOT FOUND", strlen(val ? val : "NOT FOUND"));
+        int ret = write(client_fd, val ? val : "NOT FOUND", strlen(val ? val : "NOT FOUND"));
+        if (ret <= 0) {
+            perror("write failed");
+            exit(1);
+        }
         free(val);
     } else if (strcmp(cmd, "DELETE") == 0) {
         int block = get_index_block(key);

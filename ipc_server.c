@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <pthread.h>
+#include <signal.h>
 #include "kv_store.h"
 
 #define SOCKET_PATH "/tmp/kv_socket"

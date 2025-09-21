@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <signal.h>
 #include "kv_store.h"
 
 #define THREAD_COUNT 4

@@ -17,7 +17,11 @@ void send_command(const char *cmd) {
         exit(EXIT_FAILURE);
     }
 
-    write(sock, cmd, strlen(cmd));
+    int ret = write(sock, cmd, strlen(cmd));
+    if (ret <= 0) {
+        perror("write failed");
+        exit(1);
+    }
     char buffer[512] = {0};
     int bytes = read(sock, buffer, sizeof(buffer));
     buffer[bytes] = '\0';

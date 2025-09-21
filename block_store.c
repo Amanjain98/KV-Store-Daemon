@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
 #include "block_store.h"
 
 static void* mapped_file = NULL;
@@ -15,7 +16,11 @@ static index_entry* index_table;
 static char* data_blocks;
 
 void init_block_store(int fd) {
-    ftruncate(fd, 64 * 1024 * 1024);
+    int ret = ftruncate(fd, 64 * 1024 * 1024);
+    if (ret <= 0) {
+        perror("ftruncate failed");
+        exit(1);
+    }
     mapped_file = mmap(NULL, 64 * 1024 * 1024, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     bitmap = (unsigned char*)mapped_file;
